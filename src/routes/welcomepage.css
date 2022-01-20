@@ -1,0 +1,104 @@
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    background-color: #343A40 !important;
+    display: table;
+    margin: 0;
+    background: url('../Assets/mainpageright.svg') right bottom no-repeat, url('../Assets/mainpageleft.svg') left bottom no-repeat;
+    background-size: 600px 600px;
+}
+
+.navbar-link {
+    color: seashell !important;
+}
+
+.navbar-link:hover {
+    color: #6C63FF !important;
+}
+
+.margin-left {
+    margin-left: 25px !important;
+}
+
+.margin-right {
+    margin-right: 25px !important;
+}
+
+.main-text {
+    color: white;
+    text-align: center;
+}
+
+.MainPageIcon {
+    width: 50px;
+    height: 50px;
+    color: seashell;
+}
+
+.popup-icon {
+    width: 50px;
+    height: 50px;
+    color: #343A40;
+}
+
+.MainPageIcon>img, .popup-icon>img {
+    max-width: 100%;
+    height: auto;
+}
+
+.toSharePurpleBtn {
+    background-color: #6C63FF !important;
+    border-color: #6C63FF !important;
+}
+
+.toSharePurpleBtn:hover {
+    background-color: #4f4ab1 !important;
+    border-color: #4f4ab1 !important;
+}
+
+.toSharePurpleBtn:focus, .toSharePurpleBtn:active {
+    box-shadow: 0 0 0 .2rem #5d59aa !important;
+}
+
+@media screen and (max-width: 1200px) {
+    body {
+        background: url('../Assets/mainpageright.svg') right bottom no-repeat, url('../Assets/mainpageleft.svg') left bottom no-repeat;
+        background-size: 400px 400px, 500px 500px;
+    }
+}
+
+@media screen and (max-width: 750px) {
+    body {
+        background: url('../Assets/mainpageright.svg') center bottom no-repeat;
+        background-size: 300px 300px;
+    }
+}
+
+/*Popup Css*/
+
+.custompoup-content {
+    margin: auto;
+    border-radius: 5px !important;
+    background-color: seashell !important;
+    padding: 10px !important;
+}
+
+.custompoup-arrow {
+    color: rgb(255, 255, 255);
+}
+
+[role='tooltip'].custompoup-content {
+    width: 200px;
+    box-shadow: rgba(10, 2, 2, 0.16) 0px 0px 3px;
+}
+
+.custompoup-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+[data-popup='tooltip'].custompoup-overlay {
+    background: transparent;
+}
