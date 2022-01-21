@@ -1,8 +1,9 @@
 
 import React from 'react';
-import './welcomepage.css';
+import './main.css';
 import toshareicon from '../Assets/toshareicon.png';
 
+// React Popup
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 
@@ -101,7 +102,7 @@ class MainContent extends React.Component {
                 </Row>
                 <Row className='mt-4'>
                     <Col className='main-text'>
-                        <Button className='margin-right toSharePurpleBtn' variant='primary' >Try with test user</Button>
+                        <Button className='margin-right toSharePurpleBtn'>Try with test user</Button>
                         <SingInModal />
                     </Col>
                 </Row>
@@ -114,7 +115,7 @@ class MainContent extends React.Component {
 class NavBar extends React.Component {
     render() {
         return (
-            <Navbar className='mt-4'>
+            <Navbar className='pt-4'>
                 <Container>
                     <Navbar.Brand href="#home">
                         <div className='MainPageIcon'>
@@ -125,7 +126,8 @@ class NavBar extends React.Component {
                     <Nav className="align-items-center">
                         <Nav.Link className='navbar-link' href='/'>Home</Nav.Link>
                         <Nav.Link className='navbar-link' href='/todopage'>To Do page</Nav.Link>
-                        <Nav.Link className='navbar-link' href='/todopage'>Credits</Nav.Link>
+                        <Nav.Link className='navbar-link' href='/credits'>Credits</Nav.Link>
+                        <Nav.Link className='navbar-link' href='/share'>Share To Do</Nav.Link>
                     </Nav>
                     <LogInModal />
                 </Container>
@@ -139,7 +141,7 @@ class WelcomePage extends React.Component {
         return (
             <main id='maincontainter'>
                 <NavBar />
-                <Container className='mt-5' fluid="md">
+                <Container className='pt-5' fluid="md">
                     <MainContent />
                 </Container>
             </main>
@@ -147,4 +149,7 @@ class WelcomePage extends React.Component {
     }
 }
 
-export default WelcomePage;
+export {
+    WelcomePage,
+    NavBar,
+  }

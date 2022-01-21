@@ -4,8 +4,9 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import WelcomePage from './routes/WelcomePage';
+import { WelcomePage } from './routes/WelcomePage';
 import ToDoPage from './routes/ToDoPage';
+import Credits from './routes/Credits';
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -15,6 +16,7 @@ ReactDOM.render(
     <Routes>
       <Route path="/" element={<WelcomePage />} />
       <Route path="/todopage" element={<ToDoPage />} />
+      <Route path="/credits" element={<Credits />} />
     </Routes>
   </BrowserRouter>,
   document.getElementById('root')
