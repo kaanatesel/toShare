@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { WelcomePage } from './routes/WelcomePage';
 import ToDoPage from './routes/ToDoPage';
 import Credits from './routes/Credits';
+import ShareToDo from './routes/ShareToDo';
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,6 +18,7 @@ ReactDOM.render(
       <Route path="/" element={<WelcomePage />} />
       <Route path="/todopage" element={<ToDoPage />} />
       <Route path="/credits" element={<Credits />} />
+      <Route path="/share" element={<ShareToDo />} />
     </Routes>
   </BrowserRouter>,
   document.getElementById('root')
