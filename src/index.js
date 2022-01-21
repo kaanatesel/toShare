@@ -8,6 +8,9 @@ import { WelcomePage } from './routes/WelcomePage';
 import ToDoPage from './routes/ToDoPage';
 import Credits from './routes/Credits';
 import ShareToDo from './routes/ShareToDo';
+import NotFound from './routes/NotFound';
+
+
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,6 +22,7 @@ ReactDOM.render(
       <Route path="/todopage" element={<ToDoPage />} />
       <Route path="/credits" element={<Credits />} />
       <Route path="/share" element={<ShareToDo />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>,
   document.getElementById('root')

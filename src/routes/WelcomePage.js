@@ -73,6 +73,15 @@ const SingInModal = () => (
                             <Form.Label>Confirm Password</Form.Label>
                             <Form.Control type="password" placeholder="Confirm Password" />
                         </Form.Group>
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>How do you descirbe your self?</Form.Label>
+                            <Form.Select aria-label="Default select example">
+                                <option value="1">Unicorn</option>
+                                <option value="2">Male</option>
+                                <option value="3">Female</option>
+                                <option value="4">Tree</option>
+                            </Form.Select>
+                        </Form.Group>
 
                         <Button className='toSharePurpleBtn' type="submit">
                             Submit
@@ -152,4 +161,4 @@ class WelcomePage extends React.Component {
 export {
     WelcomePage,
     NavBar,
-  }
+}
