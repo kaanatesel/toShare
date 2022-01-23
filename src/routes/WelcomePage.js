@@ -10,108 +10,12 @@ import 'reactjs-popup/dist/index.css';
 import bcrypt from 'bcryptjs'
 
 import db from '../firebase';
-import { addDoc, collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 
 
 import { Container, Row, Col, Navbar, Nav, Button, Form, Alert } from 'react-bootstrap';
 
-
-
-class LogInModal extends React.Component {
-
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            message: '',
-            messageVariant: ''
-        }
-
-        this.hanldeInputChange = this.hanldeInputChange.bind(this);
-    }
-
-    async login(e) {
-        e.preventDefault();
-
-        const userDoc = doc(db, "users", this.state.nickname);
-        const userSnap = await getDoc(userDoc);
-
-        let success = false;
-
-        if (userSnap.exists()) {
-
-            if (bcrypt.compareSync(this.state.password, userSnap.data().password)) {
-                success = true;
-                this.props.history.push('/posts/');
-            }
-        }
-
-        if (!success) {
-            this.setState({
-                message: 'Username or password is wrong.',
-                messageVariant: 'danger'
-            });
-        } else {
-            this.setState({
-                message: '',
-                messageVariant: ''
-            });
-        }
-    }
-
-    hanldeInputChange(e) {
-        const target = e.target;
-        const name = target.name;
-
-        this.setState({
-            [name]: target.value
-        });
-    }
-
-    render() {
-        return (
-            <Popup className='custompoup' trigger={<Button variant="outline-light">Login</Button>} modal>
-                <Container>
-                    <Row>
-                        <Navbar.Brand href="#home">
-                            <div className='popup-icon'>
-                                <img src={toshareicon} alt='main page icon' />
-                                toShare
-                            </div>
-                        </Navbar.Brand>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Form>
-                                <Form.Group className="mb-3" controlId="formBasicEmail">
-                                    <Form.Label>User Name</Form.Label>
-                                    <Form.Control name='nickname' onChange={this.hanldeInputChange} type="text" placeholder="Your username" />
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="formBasicPassword">
-                                    <Form.Label>Password</Form.Label>
-                                    <Form.Control name='password' onChange={this.hanldeInputChange} type="password" placeholder="Password" />
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="formBasicCheckbox">
-                                    <Form.Check type="checkbox" label="Remember me" />
-                                </Form.Group>
-                                <Button onClick={(e) => this.login(e)} className='toSharePurpleBtn' type="submit">
-                                    Submit
-                                </Button>
-                            </Form>
-                            {
-                                this.state.message !== '' &&
-                                <Alert className='mt-4' variant={this.state.messageVariant}>
-                                    {this.state.message}
-                                </Alert>
-                            }
-                        </Col>
-                    </Row>
-                </Container>
-            </Popup>
-        );
-    }
-}
-
+import LogInModal from './LoginModal';
 
 class SingInModal extends React.Component {
 

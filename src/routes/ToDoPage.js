@@ -9,11 +9,16 @@ import removeIcon from '../Assets/remove.png';
 import shareIcon from '../Assets/share.png';
 import completeIcon from '../Assets/checked.png';
 
+import bcrypt from 'bcryptjs'
 
 import { Container, Row, Col, Card, Button, Form, Navbar, ListGroup, InputGroup } from 'react-bootstrap';
 
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
+
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies();
 
 
 class LeftColm extends React.Component {
@@ -50,7 +55,13 @@ class AddToDoModal extends React.Component {
             listItems: []
         };
 
-        console.log(this.state.listItems);
+        const authcookie = cookies.get('auth');
+        if (authcookie === undefined) {
+            window.location.href = '/';
+        }
+        if (authcookie !== undefined && !bcrypt.compareSync("authentication", authcookie)) {
+            window.location.href = '/';
+        }
     }
 
     handleChange(e, index) {
