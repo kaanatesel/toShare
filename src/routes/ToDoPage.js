@@ -47,7 +47,7 @@ class AddToDoModal extends React.Component {
         super(props);
 
         this.state = {
-            listItems: ['kaan', 'mert', 'yücel']
+            listItems: []
         };
 
         console.log(this.state.listItems);

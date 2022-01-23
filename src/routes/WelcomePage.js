@@ -7,91 +7,238 @@ import toshareicon from '../Assets/toshareicon.png';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 
-import { Container, Row, Col, Navbar, Nav, Button, Form } from 'react-bootstrap';
+import bcrypt from 'bcryptjs'
 
-const LogInModal = () => (
-    <Popup className='custompoup' trigger={<Button variant="outline-light">Login</Button>} modal>
-        <Container>
-            <Row>
-                <Navbar.Brand href="#home">
-                    <div className='popup-icon'>
-                        <img src={toshareicon} alt='main page icon' />
-                        toShare
-                    </div>
-                </Navbar.Brand>
-            </Row>
-            <Row>
-                <Col>
-                    <Form>
-                        <Form.Group className="mb-3" controlId="formBasicEmail">
-                            <Form.Label>User Name</Form.Label>
-                            <Form.Control type="text" placeholder="Your username" />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control type="password" placeholder="Password" />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicCheckbox">
-                            <Form.Check type="checkbox" label="Remember me" />
-                        </Form.Group>
-                        <Button className='toSharePurpleBtn' type="submit">
-                            Submit
-                        </Button>
-                    </Form>
-                </Col>
-            </Row>
-        </Container>
-    </Popup>
-);
+import db from '../firebase';
+import { addDoc, collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
 
-const SingInModal = () => (
-    <Popup className='custompoup' trigger={<Button className='margin-left' variant="outline-light">Sing In</Button>} modal>
-        <Container>
-            <Row>
-                <Navbar.Brand href="#home">
-                    <div className='popup-icon'>
-                        <img src={toshareicon} alt='main page icon' />
-                        toShare
-                    </div>
-                </Navbar.Brand>
-            </Row>
-            <Row>
-                <Col>
-                    <Form>
-                        <Form.Group className="mb-3" controlId="formBasicEmail">
-                            <Form.Label>User Name</Form.Label>
-                            <Form.Control type="text" placeholder="Your username" />
-                            <Form.Text className="text-muted">
-                                It should be unique.
-                            </Form.Text>
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control type="password" placeholder="Password" />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Confirm Password</Form.Label>
-                            <Form.Control type="password" placeholder="Confirm Password" />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>How do you descirbe your self?</Form.Label>
-                            <Form.Select aria-label="Default select example">
-                                <option value="1">Unicorn</option>
-                                <option value="2">Male</option>
-                                <option value="3">Female</option>
-                                <option value="4">Tree</option>
-                            </Form.Select>
-                        </Form.Group>
 
-                        <Button className='toSharePurpleBtn' type="submit">
-                            Submit
-                        </Button>
-                    </Form>
-                </Col>
-            </Row>
-        </Container>
-    </Popup>
-);
+import { Container, Row, Col, Navbar, Nav, Button, Form, Alert } from 'react-bootstrap';
+
+
+
+class LogInModal extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            message: '',
+            messageVariant: ''
+        }
+
+        this.hanldeInputChange = this.hanldeInputChange.bind(this);
+    }
+
+    async login(e) {
+        e.preventDefault();
+
+        const userDoc = doc(db, "users", this.state.nickname);
+        const userSnap = await getDoc(userDoc);
+
+        let success = false;
+
+        if (userSnap.exists()) {
+
+            if (bcrypt.compareSync(this.state.password, userSnap.data().password)) {
+                success = true;
+                this.props.history.push('/posts/');
+            }
+        }
+
+        if (!success) {
+            this.setState({
+                message: 'Username or password is wrong.',
+                messageVariant: 'danger'
+            });
+        } else {
+            this.setState({
+                message: '',
+                messageVariant: ''
+            });
+        }
+    }
+
+    hanldeInputChange(e) {
+        const target = e.target;
+        const name = target.name;
+
+        this.setState({
+            [name]: target.value
+        });
+    }
+
+    render() {
+        return (
+            <Popup className='custompoup' trigger={<Button variant="outline-light">Login</Button>} modal>
+                <Container>
+                    <Row>
+                        <Navbar.Brand href="#home">
+                            <div className='popup-icon'>
+                                <img src={toshareicon} alt='main page icon' />
+                                toShare
+                            </div>
+                        </Navbar.Brand>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Form>
+                                <Form.Group className="mb-3" controlId="formBasicEmail">
+                                    <Form.Label>User Name</Form.Label>
+                                    <Form.Control name='nickname' onChange={this.hanldeInputChange} type="text" placeholder="Your username" />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="formBasicPassword">
+                                    <Form.Label>Password</Form.Label>
+                                    <Form.Control name='password' onChange={this.hanldeInputChange} type="password" placeholder="Password" />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="formBasicCheckbox">
+                                    <Form.Check type="checkbox" label="Remember me" />
+                                </Form.Group>
+                                <Button onClick={(e) => this.login(e)} className='toSharePurpleBtn' type="submit">
+                                    Submit
+                                </Button>
+                            </Form>
+                            {
+                                this.state.message !== '' &&
+                                <Alert className='mt-4' variant={this.state.messageVariant}>
+                                    {this.state.message}
+                                </Alert>
+                            }
+                        </Col>
+                    </Row>
+                </Container>
+            </Popup>
+        );
+    }
+}
+
+
+class SingInModal extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            password: '',
+            passwordcheck: '',
+            error: false,
+            message: '',
+            messageVariant: ''
+        }
+
+        this.hanldeInputChange = this.hanldeInputChange.bind(this);
+    }
+
+    hanldeInputChange(e) {
+        const target = e.target;
+        const name = target.name;
+
+        this.setState({
+            [name]: target.value
+        });
+
+        if (this.state.password !== this.state.passwordcheck) {
+            this.setState({
+                error: true
+            });
+        } else {
+            this.setState({
+                error: false
+            });
+        }
+    }
+
+
+    async singIn(e) {
+        e.preventDefault();
+
+        const hashedPassword = bcrypt.hashSync(this.state.password, '$2a$10$CwTycUXWue0Thq9StjUM0u')
+
+        setDoc(doc(db, "users", this.state.nickname), {
+            nickname: this.state.nickname,
+            password: hashedPassword,
+            type: this.state.type
+        }).then(() => {
+            this.setState({
+                message: 'The user is created now you can login.',
+                messageVariant: 'success'
+            });
+        }).catch((error) => {
+            console.log(`Unsuccessful returned error ${error}`);
+            this.setState({
+                message: error,
+                messageVariant: 'danger'
+            });
+        });
+    }
+
+    render() {
+
+
+
+        return (
+            <Popup className='custompoup' trigger={<Button className='margin-left' variant="outline-light">Sing In</Button>} modal>
+                <Container>
+                    <Row>
+                        <Navbar.Brand href="#home">
+                            <div className='popup-icon'>
+                                <img src={toshareicon} alt='main page icon' />
+                                toShare
+                            </div>
+                        </Navbar.Brand>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Form>
+                                <Form.Group className="mb-3" controlId="formBasicEmail">
+                                    <Form.Label>User Name</Form.Label>
+                                    <Form.Control name='nickname' onChange={this.hanldeInputChange} type="text" placeholder="Your username" />
+                                    <Form.Text className="text-muted">
+                                        It should be unique.
+                                    </Form.Text>
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="formBasicPassword">
+                                    <Form.Label>Password</Form.Label>
+                                    <Form.Control name='password' onChange={this.hanldeInputChange} type="password" placeholder="Password" />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="formBasicPassword">
+                                    <Form.Label>Confirm Password</Form.Label>
+                                    <Form.Control name='passwordcheck' onChange={this.hanldeInputChange} type="password" placeholder="Confirm Password" />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="formBasicPassword">
+                                    <Form.Label>How do you descirbe your self?</Form.Label>
+                                    <Form.Select name='type' onChange={this.hanldeInputChange} aria-label="Default select example">
+                                        <option value="null">Pick One</option>
+                                        <option value="unicorn">Unicorn</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="tree">Tree</option>
+                                    </Form.Select>
+                                </Form.Group>
+
+                                <Button onClick={(e) => this.singIn(e)} className={this.state.error ? 'toSharePurpleBtn disabled' : 'toSharePurpleBtn'} type="submit">
+                                    Submit
+                                </Button>
+                            </Form>
+                            {
+                                this.state.password !== this.state.passwordcheck &&
+                                <Alert className='mt-4' variant='danger'>
+                                    Passwords don't match!
+                                </Alert>
+                            }
+                            {
+                                this.state.message !== '' &&
+                                <Alert className='mt-4' variant={this.state.messageVariant}>
+                                    {this.state.message}
+                                </Alert>
+                            }
+                        </Col>
+                    </Row>
+                </Container>
+            </Popup>
+        );
+    }
+}
 
 
 class MainContent extends React.Component {
