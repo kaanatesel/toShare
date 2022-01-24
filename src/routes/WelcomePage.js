@@ -17,6 +17,9 @@ import { Container, Row, Col, Navbar, Nav, Button, Form, Alert } from 'react-boo
 
 import LogInModal from './LoginModal';
 
+import Cookies from 'universal-cookie';
+const cookies = new Cookies();
+
 class SingInModal extends React.Component {
 
     constructor(props) {
@@ -71,7 +74,8 @@ class SingInModal extends React.Component {
         setDoc(doc(db, "users", this.state.nickname), {
             nickname: this.state.nickname,
             password: hashedPassword,
-            type: this.state.type
+            type: this.state.type,
+            completed: 0
         }).then(() => {
             this.setState({
                 message: 'The user is created now you can login.',
@@ -87,7 +91,7 @@ class SingInModal extends React.Component {
 
     render() {
         return (
-            <Popup className='custompoup' trigger={<Button className='margin-left' variant="outline-light">Sing In</Button>} modal>
+            <Popup className='custompoup' trigger={<Button className='margin-left' variant="outline-light">Sign In</Button>} modal>
                 <Container>
                     <Row>
                         <Navbar.Brand href="#home">
@@ -152,6 +156,27 @@ class SingInModal extends React.Component {
 
 
 class MainContent extends React.Component {
+
+    async testUserLogin(e) {
+        e.preventDefault();
+
+        const userDoc = doc(db, "users", 'testuser');
+        const userSnap = await getDoc(userDoc);
+
+
+        if (userSnap.exists()) {
+
+            if (bcrypt.compareSync("123", userSnap.data().password)) {
+                const auth = bcrypt.hashSync("authentication", '$2a$10$CwTycUXWue0Thq9StjUM0u')
+                cookies.set('nickname', 'testuser', { path: '/' });
+
+                cookies.set('auth', auth, { path: '/', maxAge: 3600 },);
+
+                window.location.href = '/todopage';
+            }
+        }
+    }
+
     render() {
         return (
             <main>
@@ -166,7 +191,7 @@ class MainContent extends React.Component {
                 </Row>
                 <Row className='mt-4'>
                     <Col className='main-text'>
-                        <Button className='margin-right toSharePurpleBtn'>Try with test user</Button>
+                        <Button onClick={(e) => this.testUserLogin(e)} className='margin-right toSharePurpleBtn'>Try with test user</Button>
                         <SingInModal />
                     </Col>
                 </Row>

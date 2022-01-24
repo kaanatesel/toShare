@@ -20,7 +20,7 @@ import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 
 import Cookies from 'universal-cookie';
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import db from '../firebase';
 
 const cookies = new Cookies();
@@ -202,15 +202,15 @@ class AddToDoModal extends React.Component {
                         <Col>
                             <Form>
                                 <Form.Group className="mb-3" controlId="formBasicEmail">
-                                    <Form.Label>Todo Title</Form.Label>
+                                    <Form.Label>To-do Title</Form.Label>
                                     <Form.Control onChange={this.hanldeInputChange} name='todotitle' type="text" placeholder="Title" />
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="formBasicEmail">
-                                    <Form.Label>Todo Sub Title</Form.Label>
-                                    <Form.Control onChange={this.hanldeInputChange} name='todosubtitle' type="text" placeholder="SubTitle" />
+                                    <Form.Label>To-do Subtitle</Form.Label>
+                                    <Form.Control onChange={this.hanldeInputChange} name='todosubtitle' type="text" placeholder="Subtitle" />
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="formBasicEmail">
-                                    <Form.Label>Todo Text</Form.Label>
+                                    <Form.Label>To-do Text</Form.Label>
                                     <Form.Control onChange={this.hanldeInputChange} name='todotext' as="textarea" rows="3" placeholder="Text" />
                                 </Form.Group>
                                 <ListGroup className='pb-4'>
@@ -268,7 +268,6 @@ class ShareButton extends React.Component {
     constructor(props) {
         super(props);
         const url = window.location.href;
-        console.log(url.substring(0, url.length - 9) + '/share:' + this.props.docid);
         this.state = {
             todourl: url.substring(0, url.length - 9) + '/share:' + this.props.docid,
             message: '',
