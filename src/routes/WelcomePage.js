@@ -10,7 +10,7 @@ import 'reactjs-popup/dist/index.css';
 import bcrypt from 'bcryptjs'
 
 import db from '../firebase';
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 
 import { Container, Row, Col, Navbar, Nav, Button, Form, Alert } from 'react-bootstrap';
@@ -56,7 +56,17 @@ class SingInModal extends React.Component {
     async singIn(e) {
         e.preventDefault();
 
-        const hashedPassword = bcrypt.hashSync(this.state.password, '$2a$10$CwTycUXWue0Thq9StjUM0u')
+        const hashedPassword = bcrypt.hashSync(this.state.password, '$2a$10$CwTycUXWue0Thq9StjUM0u');
+
+        const userDoc = doc(db, "users", this.state.nickname);
+        const userSnap = await getDoc(userDoc);
+        if (userSnap.exists()) {
+            this.setState({
+                message: "The username already exists.",
+                messageVariant: 'danger'
+            });
+            return;
+        }
 
         setDoc(doc(db, "users", this.state.nickname), {
             nickname: this.state.nickname,
@@ -68,7 +78,6 @@ class SingInModal extends React.Component {
                 messageVariant: 'success'
             });
         }).catch((error) => {
-            console.log(`Unsuccessful returned error ${error}`);
             this.setState({
                 message: error,
                 messageVariant: 'danger'
@@ -77,9 +86,6 @@ class SingInModal extends React.Component {
     }
 
     render() {
-
-
-
         return (
             <Popup className='custompoup' trigger={<Button className='margin-left' variant="outline-light">Sing In</Button>} modal>
                 <Container>

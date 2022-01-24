@@ -49,6 +49,7 @@ class LogInModal extends React.Component {
                 window.location.href = '/todopage';
                 const auth = bcrypt.hashSync("authentication", '$2a$10$CwTycUXWue0Thq9StjUM0u')
                 cookies.set('auth', auth, { path: '/' });
+                cookies.set('nickname', this.state.nickname, { path: '/' });
             }
         }
 

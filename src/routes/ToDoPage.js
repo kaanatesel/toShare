@@ -11,12 +11,14 @@ import completeIcon from '../Assets/checked.png';
 
 import bcrypt from 'bcryptjs'
 
-import { Container, Row, Col, Card, Button, Form, Navbar, ListGroup, InputGroup } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Navbar, ListGroup, InputGroup, Alert, Spinner } from 'react-bootstrap';
 
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 
 import Cookies from 'universal-cookie';
+import { addDoc, collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import db from '../firebase';
 
 const cookies = new Cookies();
 
@@ -51,24 +53,43 @@ class AddToDoModal extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            listItems: []
-        };
-
         const authcookie = cookies.get('auth');
-        if (authcookie === undefined) {
+        const nickname = cookies.get('nickname');
+        if (authcookie === undefined && nickname === undefined) {
             window.location.href = '/';
         }
         if (authcookie !== undefined && !bcrypt.compareSync("authentication", authcookie)) {
             window.location.href = '/';
         }
+
+        this.state = {
+            listItems: [],
+
+            nickname: nickname,
+            todotitle: '',
+            todosubtitle: '',
+            todotext: '',
+            message: '',
+            messageVariant: ''
+        };
+
+        this.hanldeInputChange = this.hanldeInputChange.bind(this);
     }
 
-    handleChange(e, index) {
+    handleChangeTodoList(e, index) {
         let newListItems = this.state.listItems.slice();
         newListItems[index] = e.target.value;
         this.setState({
             listItems: newListItems
+        });
+    }
+
+    hanldeInputChange(e) {
+        const target = e.target;
+        const name = target.name;
+
+        this.setState({
+            [name]: target.value
         });
     }
 
@@ -81,8 +102,25 @@ class AddToDoModal extends React.Component {
     }
 
     submitForm(e) {
-        e.preventDefault();
-        console.log(this.state.listItems);
+        addDoc(collection(db, "todos"), {
+            title: this.state.todotitle,
+            subtitle: this.state.todosubtitle,
+            text: this.state.todotext,
+            listItems: this.state.listItems,
+            nickname: this.state.nickname
+        }).then(() => {
+            this.setState({
+                message: 'To do is added.',
+                messageVariant: 'success'
+            });
+            window.location.reload();
+        }).catch((error) => {
+            this.setState({
+                message: error,
+                messageVariant: 'danger'
+            });
+        });
+       
     }
 
     removeListItem(e, index) {
@@ -111,15 +149,15 @@ class AddToDoModal extends React.Component {
                             <Form>
                                 <Form.Group className="mb-3" controlId="formBasicEmail">
                                     <Form.Label>Todo Title</Form.Label>
-                                    <Form.Control type="text" placeholder="Title" />
+                                    <Form.Control onChange={this.hanldeInputChange} name='todotitle' type="text" placeholder="Title" />
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="formBasicEmail">
                                     <Form.Label>Todo Sub Title</Form.Label>
-                                    <Form.Control type="text" placeholder="SubTitle" />
+                                    <Form.Control onChange={this.hanldeInputChange} name='todosubtitle' type="text" placeholder="SubTitle" />
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="formBasicEmail">
                                     <Form.Label>Todo Text</Form.Label>
-                                    <Form.Control as="textarea" rows="3" placeholder="Text" />
+                                    <Form.Control onChange={this.hanldeInputChange} name='todotext' as="textarea" rows="3" placeholder="Text" />
                                 </Form.Group>
                                 <ListGroup className='pb-4'>
                                     {
@@ -127,7 +165,7 @@ class AddToDoModal extends React.Component {
                                             return (
                                                 <ListGroup.Item key={index}>
                                                     <InputGroup className="mb-3">
-                                                        <Form.Control onChange={(e) => this.handleChange(e, index)} type="text" value={item} />
+                                                        <Form.Control onChange={(e) => this.handleChangeTodoList(e, index)} type="text" value={item} />
                                                         <Button onClick={(e) => this.removeListItem(e, index)} variant="danger">Remove</Button>
                                                     </InputGroup>
                                                 </ListGroup.Item>
@@ -143,6 +181,12 @@ class AddToDoModal extends React.Component {
                                     Submit
                                 </Button>
                             </Form>
+                            {
+                                this.state.message !== '' &&
+                                <Alert className='mt-4' variant={this.state.messageVariant}>
+                                    {this.state.message}
+                                </Alert>
+                            }
                         </Col>
                     </Row>
                 </Container>
@@ -171,12 +215,18 @@ class ToDoCard extends React.Component {
             <>
                 <Card >
                     <Card.Body>
-                        <Card.Title>Card Title {this.props.id}</Card.Title>
-                        <Card.Subtitle className="mb-2 text-muted">Card Subtitle {this.props.id}</Card.Subtitle>
+                        <Card.Title>{this.props.title}</Card.Title>
+                        <Card.Subtitle className="mb-2 text-muted">{this.props.subtitle}</Card.Subtitle>
                         <Card.Text>
-                            Some quick example text to build on the card title and make up the bulk of
-                            the card's content.
+                            {this.props.text}
                         </Card.Text>
+                        <ListGroup>
+                            {
+                                this.props.list.map((item, id) => {
+                                    return <ListGroup.Item key={id}>{item}</ListGroup.Item>
+                                })
+                            }
+                        </ListGroup>
                         <div className='text-center'>
                             <Button variant="outline-success" className='m-1' type="submit">
                                 <img src={completeIcon} alt='' />
@@ -196,15 +246,61 @@ class ToDoCard extends React.Component {
 }
 
 class ToDoDiv extends React.Component {
+
+    constructor(props) {
+        super(props);
+        const nickname = cookies.get('nickname');
+        this.state = {
+            todoList: [],
+            nickname: nickname
+        }
+    }
+
+    async componentDidMount() {
+
+        const userDoc = doc(db, "users", this.state.nickname);
+        const userSnap = await getDoc(userDoc);
+        let todos = [];
+        if (userSnap.exists()) {
+            const todoDocs = query(collection(db, "todos"), where("nickname", "==", this.state.nickname));
+
+            const todoes = await getDocs(todoDocs);
+            todoes.forEach((doc) => {
+                const todo = {
+                    title: doc.data().title,
+                    subtitle: doc.data().subtitle,
+                    text: doc.data().text,
+                    listItems: doc.data().listItems
+                }
+                todos.push(todo);
+            });
+        }
+        this.setState({
+            todoList: todos
+        });
+    }
+
     render() {
+
+        let output = <Spinner className='ml-5' variant="light" animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+        </Spinner>;
+
+        let x = this.state.todoList;
+
+        if (this.state.todoList !== null) {
+            output = this.state.todoList.map((todo, idx) => (
+                <Col key={idx}>
+                    <ToDoCard title={todo.title} subtitle={todo.subtitle} text={todo.text} list={todo.listItems} id={idx} />
+                </Col>
+            ));
+        }
+
         return (
             <>
                 <Row xs={1} md={1} lg={3} className="g-4">
-                    {Array.from({ length: 5 + 1 }).map((_, idx) => (
-                        <Col key={idx}>
-                            {idx === 0 ? <AddToDoCard /> : <ToDoCard id={idx} />}
-                        </Col>
-                    ))}
+                    <Col><AddToDoCard /> </Col>
+                    {output}
                 </Row>
             </>
         );
