@@ -136,6 +136,10 @@ body {
         background-size: 300px 300px;
     }
 
+    #navbar-logo-text {
+        display: none;
+    }
+
     #profile-col {
         text-align: left;
         margin-bottom: 25px;

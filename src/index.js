@@ -21,7 +21,7 @@ ReactDOM.render(
       <Route path="/" element={<WelcomePage />} />
       <Route path="/todopage" element={<ToDoPage />} />
       <Route path="/credits" element={<Credits />} />
-      <Route path="/share" element={<ShareToDo />} />
+      <Route path="/share:docid" element={<ShareToDo />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>,

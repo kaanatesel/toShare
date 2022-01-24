@@ -28,7 +28,8 @@ class LogInModal extends React.Component {
 
         this.state = {
             message: '',
-            messageVariant: ''
+            messageVariant: '',
+            rememberme: false
         }
 
         this.hanldeInputChange = this.hanldeInputChange.bind(this);
@@ -46,10 +47,18 @@ class LogInModal extends React.Component {
 
             if (bcrypt.compareSync(this.state.password, userSnap.data().password)) {
                 success = true;
-                window.location.href = '/todopage';
+
                 const auth = bcrypt.hashSync("authentication", '$2a$10$CwTycUXWue0Thq9StjUM0u')
-                cookies.set('auth', auth, { path: '/' });
                 cookies.set('nickname', this.state.nickname, { path: '/' });
+
+                if (this.state.rememberme) {
+                    cookies.set('auth', auth, { path: '/' },);
+                }
+                else {
+                    cookies.set('auth', auth, { path: '/', maxAge: 3600 },);
+                }
+
+                window.location.href = '/todopage';
             }
         }
 
@@ -68,10 +77,11 @@ class LogInModal extends React.Component {
 
     hanldeInputChange(e) {
         const target = e.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
         const name = target.name;
 
         this.setState({
-            [name]: target.value
+            [name]: value
         });
     }
 
@@ -99,7 +109,7 @@ class LogInModal extends React.Component {
                                     <Form.Control name='password' onChange={this.hanldeInputChange} type="password" placeholder="Password" />
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="formBasicCheckbox">
-                                    <Form.Check type="checkbox" label="Remember me" />
+                                    <Form.Check onChange={this.hanldeInputChange} name='rememberme' type="checkbox" label="Remember me" />
                                 </Form.Group>
                                 <Button onClick={(e) => this.login(e)} className='toSharePurpleBtn' type="submit">
                                     Submit

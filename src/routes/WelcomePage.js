@@ -152,8 +152,6 @@ class SingInModal extends React.Component {
 
 
 class MainContent extends React.Component {
-
-
     render() {
         return (
             <main>
@@ -183,17 +181,15 @@ class NavBar extends React.Component {
         return (
             <Navbar className='pt-4'>
                 <Container>
-                    <Navbar.Brand href="#home">
+                    <Navbar.Brand href="/">
                         <div className='MainPageIcon'>
                             <img src={toshareicon} alt='main page icon' />
-                            toShare
+                            <p id='navbar-logo-text'>toShare</p>
                         </div>
                     </Navbar.Brand>
                     <Nav className="align-items-center">
                         <Nav.Link className='navbar-link' href='/'>Home</Nav.Link>
-                        <Nav.Link className='navbar-link' href='/todopage'>To Do page</Nav.Link>
                         <Nav.Link className='navbar-link' href='/credits'>Credits</Nav.Link>
-                        <Nav.Link className='navbar-link' href='/share'>Share To Do</Nav.Link>
                     </Nav>
                     <LogInModal />
                 </Container>

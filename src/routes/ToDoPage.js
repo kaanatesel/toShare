@@ -14,13 +14,13 @@ import completeIcon from '../Assets/checked.png';
 
 import bcrypt from 'bcryptjs'
 
-import { Container, Row, Col, Card, Button, Form, Navbar, ListGroup, InputGroup, Alert, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Navbar, ListGroup, InputGroup, Alert, Spinner, FormControl } from 'react-bootstrap';
 
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 
 import Cookies from 'universal-cookie';
-import { addDoc, collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import db from '../firebase';
 
 const cookies = new Cookies();
@@ -61,8 +61,6 @@ class LeftColm extends React.Component {
     }
 
     async componentDidMount() {
-
-
         const userDoc = doc(db, "users", this.state.nickname);
         const userSnap = await getDoc(userDoc);
 
@@ -74,6 +72,11 @@ class LeftColm extends React.Component {
         }
     }
 
+    logout(e) {
+        cookies.set('auth', '', { path: '/' });
+        cookies.set('nickname', '', { path: '/' });
+        window.location.href = '/';
+    }
 
     render() {
 
@@ -92,7 +95,7 @@ class LeftColm extends React.Component {
                 </Row>
                 <Row className='pt-5 pb-5 '>
                     <Col>
-                        <Button className='margin-right toSharePurpleBtn'>Log Out</Button>
+                        <Button onClick={(e) => this.logout(e)} className='margin-right toSharePurpleBtn'>Log Out</Button>
                     </Col>
                 </Row>
             </>
@@ -260,7 +263,105 @@ class AddToDoCard extends React.Component {
     }
 }
 
+class ShareButton extends React.Component {
+
+    constructor(props) {
+        super(props);
+        const url = window.location.href;
+        console.log(url.substring(0, url.length - 9) + '/share:' + this.props.docid);
+        this.state = {
+            todourl: url.substring(0, url.length - 9) + '/share:' + this.props.docid,
+            message: '',
+            messageVariant: ''
+        }
+    }
+
+    handleCopy(e) {
+        console.log("alkfdnhadfn")
+        var copyText = document.getElementById("urlform");
+
+        /* Select the text field */
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+        /* Copy the text inside the text field */
+        navigator.clipboard.writeText(copyText.value);
+
+        this.setState({
+            message: 'Copied!',
+            messageVariant: 'success'
+        });
+
+    }
+
+    render() {
+
+        return (
+            <Popup className='custompoup' trigger={<Button variant="outline-primary" className='m-1' type="submit">
+                <img src={shareIcon} alt='' />
+            </Button>} modal>
+                <Container>
+                    <Row>
+                        <Navbar.Brand href="#home">
+                            <div className='popup-icon'>
+                                <img src={toshareicon} alt='main page icon' />
+                                toShare
+                            </div>
+                        </Navbar.Brand>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <InputGroup className="mb-3">
+                                <FormControl
+                                    value={this.state.todourl}
+                                    disabled
+                                    id='urlform'
+                                />
+                                <Button onClick={(e) => this.handleCopy(e)} variant="outline-primary" id="button-addon2">
+                                    Copy
+                                </Button>
+                            </InputGroup>
+                            {
+                                this.state.message !== '' &&
+                                <Alert className='mt-4' variant={this.state.messageVariant}>
+                                    {this.state.message}
+                                </Alert>
+                            }
+                        </Col>
+                    </Row>
+                </Container>
+            </Popup>
+        );
+    }
+}
+
+
 class ToDoCard extends React.Component {
+
+
+    async handleComplate(e, docid) {
+        const userDoc = doc(db, "users", cookies.get('nickname'));
+        const userSnap = await getDoc(userDoc);
+
+        if (userSnap.exists()) {
+            console.log(userSnap.data().completed + 1);
+
+            const newComplate = userSnap.data().completed + 1;
+
+            await updateDoc(userDoc, {
+                completed: newComplate
+            });
+
+            this.handleDelete(e, docid);
+        }
+    }
+
+    async handleDelete(e, docid) {
+        await deleteDoc(doc(db, "todos", docid)).then(() => {
+            window.location.reload();
+        });
+    }
+
     render() {
         return (
             <>
@@ -279,13 +380,11 @@ class ToDoCard extends React.Component {
                             }
                         </ListGroup>
                         <div className='text-center'>
-                            <Button variant="outline-success" className='m-1' type="submit">
+                            <Button onClick={(e) => this.handleComplate(e, this.props.docid)} variant="outline-success" className='m-1' type="submit">
                                 <img src={completeIcon} alt='' />
                             </Button>
-                            <Button variant="outline-primary" className='m-1' type="submit">
-                                <img src={shareIcon} alt='' />
-                            </Button>
-                            <Button variant="outline-danger" className='m-1' type="submit">
+                            <ShareButton docid={this.props.docid} />
+                            <Button onClick={(e) => this.handleDelete(e, this.props.docid)} variant="outline-danger" className='m-1' type="submit">
                                 <img src={removeIcon} alt='' />
                             </Button>
                         </div>
@@ -321,7 +420,8 @@ class ToDoDiv extends React.Component {
                     title: doc.data().title,
                     subtitle: doc.data().subtitle,
                     text: doc.data().text,
-                    listItems: doc.data().listItems
+                    listItems: doc.data().listItems,
+                    todoid: doc.id
                 }
                 todos.push(todo);
             });
@@ -337,12 +437,10 @@ class ToDoDiv extends React.Component {
             <span className="visually-hidden">Loading...</span>
         </Spinner>;
 
-        let x = this.state.todoList;
-
         if (this.state.todoList !== null) {
             output = this.state.todoList.map((todo, idx) => (
                 <Col key={idx}>
-                    <ToDoCard title={todo.title} subtitle={todo.subtitle} text={todo.text} list={todo.listItems} id={idx} />
+                    <ToDoCard title={todo.title} subtitle={todo.subtitle} text={todo.text} list={todo.listItems} id={idx} docid={todo.todoid} />
                 </Col>
             ));
         }
