@@ -1,8 +1,11 @@
 import React from 'react';
 import './main.css';
 
+import tree_avatar from '../Assets/tree_avatar.svg';
+import male_avatar from '../Assets/male_avatar.svg';
+import female_avatar from '../Assets/tree_avatar.svg';
+import unicorn_avatar from '../Assets/unicorn_avatar.svg';
 
-import avatar from '../Assets/tree_avatar.svg';
 import toshareicon from '../Assets/toshareicon.png';
 
 import removeIcon from '../Assets/remove.png';
@@ -24,18 +27,67 @@ const cookies = new Cookies();
 
 
 class LeftColm extends React.Component {
+
+    constructor(props) {
+        super(props);
+        const nickname = cookies.get('nickname');
+
+        this.state = {
+            avatar: '',
+            nickname: nickname,
+            completed: 0
+        }
+    }
+
+    ReturnAvatar() {
+
+        if (this.state.avatar === 'female') {
+            return <img id='profile-foto' src={female_avatar} alt='main page icon' />;
+        }
+
+        if (this.state.avatar === 'male') {
+            return <img id='profile-foto' src={male_avatar} alt='main page icon' />;
+        }
+
+        if (this.state.avatar === 'tree') {
+            return <img id='profile-foto' src={tree_avatar} alt='main page icon' />;
+        }
+
+        if (this.state.avatar === 'unicorn') {
+            return <img id='profile-foto' src={unicorn_avatar} alt='main page icon' />;
+        }
+
+        return null;
+    }
+
+    async componentDidMount() {
+
+
+        const userDoc = doc(db, "users", this.state.nickname);
+        const userSnap = await getDoc(userDoc);
+
+        if (userSnap.exists()) {
+            this.setState({
+                avatar: userSnap.data().type,
+                completed: userSnap.data().completed
+            })
+        }
+    }
+
+
     render() {
+
         return (
             <>
                 <Row className='pt-5'>
                     <Col>
-                        <img id='profile-foto' src={avatar} alt='main page icon' />
-                        <h4>Kaan Ateşel</h4>
+                        {this.ReturnAvatar()}
+                        <h4>{this.state.nickname}</h4>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
-                        <h4 className='mt-4'>Complated ToDos: 10</h4>
+                        <h4 className='mt-4'>Complated ToDos: {this.state.completed}</h4>
                     </Col>
                 </Row>
                 <Row className='pt-5 pb-5 '>
@@ -64,7 +116,6 @@ class AddToDoModal extends React.Component {
 
         this.state = {
             listItems: [],
-
             nickname: nickname,
             todotitle: '',
             todosubtitle: '',
@@ -120,7 +171,7 @@ class AddToDoModal extends React.Component {
                 messageVariant: 'danger'
             });
         });
-       
+
     }
 
     removeListItem(e, index) {
