@@ -213,7 +213,7 @@ class AddToDoModal extends React.Component {
                                     <Form.Label>To-do Text</Form.Label>
                                     <Form.Control onChange={this.hanldeInputChange} name='todotext' as="textarea" rows="3" placeholder="Text" />
                                 </Form.Group>
-                                <ListGroup className='pb-4'>
+                                <ListGroup id='todos-wrapper' className='pb-4'>
                                     {
                                         this.state.listItems.map((item, index) => {
                                             return (

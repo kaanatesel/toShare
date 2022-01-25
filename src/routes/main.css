@@ -130,7 +130,19 @@ body {
     }
 }
 
+#todos-wrapper {
+    max-height: 150px;
+    margin-bottom: 10px;
+    overflow: scroll;
+    -webkit-overflow-scrolling: touch;
+}
+
 @media screen and (max-width: 750px) {
+
+    .custompoup-content {
+        width: 100% !important;
+    }
+
     body {
         background: url('../Assets/mainpageright.svg') center bottom no-repeat;
         background-size: 300px 300px;
