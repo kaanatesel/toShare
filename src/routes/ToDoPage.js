@@ -213,7 +213,7 @@ class AddToDoModal extends React.Component {
                                     <Form.Label>To-do Text</Form.Label>
                                     <Form.Control onChange={this.hanldeInputChange} name='todotext' as="textarea" rows="3" placeholder="Text" />
                                 </Form.Group>
-                                <ListGroup id='todos-wrapper' className='pb-4'>
+                                <ListGroup id='todos-wrapper' className='pb-2'>
                                     {
                                         this.state.listItems.map((item, index) => {
                                             return (
@@ -227,13 +227,16 @@ class AddToDoModal extends React.Component {
                                         })
                                     }
                                 </ListGroup>
-                                <Button onClick={(e) => this.addListItem(e)} className='toSharePurpleBtn' type="button">
-                                    Add List Item
-                                </Button>
-                                <hr />
-                                <Button onClick={(e) => this.submitForm(e)} className='toSharePurpleBtn' type="button">
-                                    Submit
-                                </Button>
+                                <div style={{
+                                    textAlign:'center'
+                                }}>
+                                    <Button onClick={(e) => this.addListItem(e)} className='toSharePurpleBtn' type="button">
+                                        Add List Item
+                                    </Button>
+                                    <Button style={{marginLeft:'10px'}} onClick={(e) => this.submitForm(e)} className='toSharePurpleBtn' type="button">
+                                        Submit
+                                    </Button>
+                                </div>
                             </Form>
                             {
                                 this.state.message !== '' &&

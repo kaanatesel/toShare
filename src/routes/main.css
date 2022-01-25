@@ -140,7 +140,7 @@ body {
 @media screen and (max-width: 750px) {
 
     .custompoup-content {
-        width: 100% !important;
+        width: 80% !important;
     }
 
     body {
